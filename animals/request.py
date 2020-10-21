@@ -25,7 +25,7 @@ def get_all_animals():
             a.status,
             a.customer_id,
             a.location_id
-        FROM animal a
+        FROM Animal a
         """)
 
         # Initialize an empty list to hold all animal representations
@@ -66,7 +66,7 @@ def get_single_animal(id):
             a.status,
             a.customer_id,
             a.location_id
-        FROM animal a
+        FROM Animal a
         WHERE a.id = ?
         """, ( id, ))
 
@@ -88,14 +88,14 @@ def get_animals_by_location(location_id):
         # Write the SQL query to get the information you want
         db_cursor.execute("""
         select
-            c.id,
-            c.name,
-            c.breed,
-            c.status,
-            c.customer_id,
-            c.location_id
-        from Animal c
-        WHERE c.location_id = ?
+            a.id,
+            a.name,
+            a.breed,
+            a.status,
+            a.customer_id,
+            a.location_id
+        FROM Animal a
+        WHERE a.location_id = ?
         """, ( location_id, ))
 
         animals = []
@@ -116,14 +116,14 @@ def get_animals_by_status(status):
         # Write the SQL query to get the information you want
         db_cursor.execute("""
         select
-            c.id,
-            c.name,
-            c.breed,
-            c.status,
-            c.customer_id,
-            c.location_id
-        from Animal c
-        WHERE c.status = ?
+            a.id,
+            a.name,
+            a.breed,
+            a.status,
+            a.customer_id,
+            a.location_id
+        FROM Animal a
+        WHERE a.status = ?
         """, ( status, ))
 
         animals = []
@@ -156,15 +156,34 @@ def delete_animal(id):
         db_cursor = conn.cursor()
 
         db_cursor.execute("""
-        DELETE FROM animal
+        DELETE FROM Animal
         WHERE id = ?
         """, (id, ))
 
-def update_animal(id, updated_animal):
-    # Iterate the ANIMALS list, but use enumerate() so that
-    # you can access the index value of each item.
-    for index, animal in enumerate(ANIMALS):
-        if animal["id"] == id:
-            # Found the animal. Update the value.
-            ANIMALS[index] = Animal(updated_animal['id'], updated_animal['name'], updated_animal['breed'], updated_animal['status'], updated_animal['customer_id'], updated_animal['location_id'])
-            break
+def update_animal(id, new_animal):
+    with sqlite3.connect("./kennel.db") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        UPDATE Animal
+            SET
+                name = ?,
+                breed = ?,
+                status = ?,
+                location_id = ?,
+                customer_id = ?
+        WHERE id = ?
+        """, (new_animal['name'], new_animal['breed'],
+              new_animal['status'], new_animal['customer_id'],
+              new_animal['location_id'], id, ))
+
+        # Were any rows affected?
+        # Did the client send an `id` that exists?
+        rows_affected = db_cursor.rowcount
+
+    if rows_affected == 0:
+        # Forces 404 response by main module
+        return False
+    else:
+        # Forces 204 response by main module
+        return True

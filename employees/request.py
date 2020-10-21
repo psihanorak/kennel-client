@@ -16,11 +16,11 @@ def get_all_employees():
 
         db_cursor.execute("""
         SELECT
-            a.id,
-            a.name,
-            a.address,
-            a.location_id
-        FROM employee a
+            e.id,
+            e.name,
+            e.address,
+            e.location_id
+        FROM Employee e
         """)
 
         employees = []
@@ -42,12 +42,12 @@ def get_single_employee(id):
 
         db_cursor.execute("""
         SELECT
-            a.id,
-            a.name,
-            a.address,
-            a.location_id
-        FROM employee a
-        WHERE a.id = ?
+            e.id,
+            e.name,
+            e.address,
+            e.location_id
+        FROM Employee e
+        WHERE e.id = ?
         """, ( id, ))
 
         data = db_cursor.fetchone()
@@ -65,12 +65,12 @@ def get_employees_by_location(location_id):
         # Write the SQL query to get the information you want
         db_cursor.execute("""
         select
-            c.id,
-            c.name,
-            c.address,
-            c.location_id
-        from Employee c
-        WHERE c.location_id = ?
+            e.id,
+            e.name,
+            e.address,
+            e.location_id
+        FROM Employee e
+        WHERE e.location_id = ?
         """, ( location_id, ))
 
         employees = []
